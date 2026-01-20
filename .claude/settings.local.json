@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo create:*)",
+      "Bash(skills-ref --help:*)",
+      "Bash(skills-ref validate:*)",
+      "Bash(skills-ref to-prompt:*)",
+      "Bash(skills-ref read-properties:*)",
+      "Skill(commit-dev)",
+      "Skill(commit-dev:*)"
     ]
   }
 }
