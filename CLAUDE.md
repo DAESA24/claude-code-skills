@@ -1,12 +1,17 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+- **Scope:** Global Skills Repository
+- **Purpose:** Claude Code skill development and management
+- **Standard:** [Agent Skills open standard](https://agentskills.io)
 
-## Project Overview
+## What This Repository Contains
 
-This repository contains Claude Code skills - modular packages that extend Claude's capabilities with specialized knowledge, workflows, and tools. Each skill is a self-contained directory with a `SKILL.md` file and optional bundled resources.
+Skills are modular packages that extend Claude's capabilities. Each skill is a directory containing:
 
-Skills in this repo follow the [Agent Skills open standard](https://agentskills.io) maintained by Anthropic.
+- `SKILL.md` (required) - YAML frontmatter + markdown instructions
+- `scripts/` (optional) - Executable Python/Bash code
+- `references/` (optional) - Documentation loaded into context as needed
+- `assets/` (optional) - Files used in output (templates, images, fonts)
 
 ## Repository Structure
 
@@ -14,51 +19,55 @@ Skills in this repo follow the [Agent Skills open standard](https://agentskills.
 skills/
 ├── skill-creator/       # Meta-skill for creating new skills
 │   ├── SKILL.md
-│   └── scripts/         # Python tools for skill management
+│   └── scripts/         # init_skill.py, quick_validate.py, package_skill.py
 ├── crawl4ai/            # Web crawling with Crawl4AI library
 ├── docs-as-code-execution-plan/  # Automation execution plans
 ├── planning-with-files/ # Manus-style persistent markdown planning
 └── youtube-audio-download/       # YouTube audio extraction
 ```
 
-## Skill Anatomy
+## Two Toolsets: When to Use Each
 
-Every skill requires:
-- `SKILL.md` - YAML frontmatter (name, description) + markdown instructions
-- Optional: `scripts/`, `references/`, `assets/` directories
+This repository uses two complementary toolsets. Use the decision tree below.
 
-## Common Commands
+### skill-creator (Design & Authoring)
 
-### Create a New Skill
+**Location:** `skill-creator/scripts/`
+
+**Use skill-creator when:**
+
+- Creating a new skill from scratch → `init_skill.py`
+- Iterating during development → `quick_validate.py`
+- Packaging a skill for distribution → `package_skill.py`
+- Following the 6-step skill design process → Read `skill-creator/SKILL.md`
+
+**Commands:**
+
 ```bash
+# Initialize new skill (always use this for new skills)
 python skill-creator/scripts/init_skill.py <skill-name> --path <output-directory>
-```
 
-### Quick Validation (Development)
-
-```bash
+# Fast validation during development
 python skill-creator/scripts/quick_validate.py <skill-directory>
-```
 
-### Official Spec Validation (Before Publishing)
-
-```bash
-skills-ref validate <skill-directory>
-```
-
-### Package a Skill for Distribution
-```bash
+# Package for distribution (validates first, then creates zip)
 python skill-creator/scripts/package_skill.py <skill-directory> [output-directory]
 ```
 
-## Agent Skills Spec Validation with `skills-ref`
+### skills-ref CLI (Validation & Integration)
 
-The `skills-ref` CLI is the **official reference implementation** for validating skills against the Agent Skills open standard. Always run this before publishing or sharing a skill.
+**Purpose:** Official reference implementation of the Agent Skills spec
 
-### Commands
+**Use skills-ref when:**
+
+- Final validation before publishing → `skills-ref validate`
+- Extracting skill metadata programmatically → `skills-ref read-properties`
+- Generating prompt XML for custom agents → `skills-ref to-prompt`
+
+**Commands:**
 
 ```bash
-# Validate a skill against the official spec
+# Official spec validation (run before publishing)
 skills-ref validate <skill-directory>
 
 # Read skill properties as JSON
@@ -68,46 +77,53 @@ skills-ref read-properties <skill-directory>
 skills-ref to-prompt <skill-directory> [additional-skills...]
 ```
 
-### Validation Rules (Official Spec)
+## Skill Development Workflow
 
-The `skills-ref validate` command enforces:
+Follow this sequence when creating or modifying skills:
 
-**Required fields:**
+1. **Create** → `python skill-creator/scripts/init_skill.py <name> --path <dir>`
+2. **Design** → Follow 6-step process in `skill-creator/SKILL.md`
+3. **Iterate** → Run `quick_validate.py` after each change
+4. **Final validate** → Run `skills-ref validate` before publishing
+5. **Package** → Run `package_skill.py` to create distributable zip
 
-- `name` - Max 64 chars, lowercase alphanumeric + hyphens, must match directory name
-- `description` - Max 1024 chars, describes what skill does and when to use it
+## SKILL.md Requirements
 
-**Optional fields (only these are allowed):**
+### YAML Frontmatter (Required)
 
-- `license` - License name or reference to bundled file
-- `compatibility` - Max 500 chars, environment requirements
-- `metadata` - Key-value pairs for custom properties (use this for version info, author, etc.)
-- `allowed-tools` - Space-delimited list of pre-approved tools (experimental)
+| Field           | Required | Constraints                                                               |
+| --------------- | -------- | ------------------------------------------------------------------------- |
+| `name`          | Yes      | Max 64 chars, lowercase alphanumeric + hyphens, must match directory name |
+| `description`   | Yes      | Max 1024 chars, describe what skill does AND when to use it               |
+| `license`       | No       | License name or reference to bundled file                                 |
+| `compatibility` | No       | Max 500 chars, environment requirements                                   |
+| `metadata`      | No       | Key-value pairs for custom properties                                     |
+| `allowed-tools` | No       | Space-delimited list of pre-approved tools (experimental)                 |
 
-**Important:** Custom fields like `version`, `last_updated`, or `crawl4ai_version` must go inside the `metadata:` block to pass spec validation.
+**Important:** Custom fields (`version`, `author`, `last_updated`) must go inside `metadata:` block to pass spec validation.
 
-### Example: Spec-Compliant Frontmatter
+### Example Frontmatter
 
 ```yaml
 ---
 name: my-skill
-description: This skill does X. Use when the user needs Y.
+description: This skill does X. This skill should be used when the user needs Y.
 license: MIT
 metadata:
   version: "1.0"
-  author: example-org
-  last_updated: "2025-01-19"
+  author: drew-arnold
+  last_updated: "2025-01-20"
 ---
 ```
 
-### Development Workflow
-
-1. **During development:** Use `quick_validate.py` for fast feedback
-2. **Before publishing:** Run `skills-ref validate` for full spec compliance
-3. **Testing prompt integration:** Use `skills-ref to-prompt` to see how skills appear to agents
-
 ## Writing Style for Skills
 
-- Use imperative/infinitive form (verb-first instructions)
-- Use third-person in descriptions ("This skill should be used when..." not "Use this skill when...")
-- Keep `SKILL.md` lean; put detailed info in `references/` files
+- Use imperative/infinitive form (verb-first): "To rotate a PDF, run..." not "You should run..."
+- Use third-person in descriptions: "This skill should be used when..." not "Use this skill when..."
+- Keep `SKILL.md` lean; move detailed reference material to `references/` files
+- Include explicit trigger phrases in description to improve skill invocation accuracy
+
+---
+
+- **Document Status:** ✅ Active
+- **Last Updated:** 2025-01-20
