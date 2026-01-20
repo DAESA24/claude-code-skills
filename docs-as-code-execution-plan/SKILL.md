@@ -39,10 +39,14 @@ To create a new execution plan:
 2. **Generate Plan Structure**
    - Use the template in `references/docs-as-code-execution-plan-template.md`
    - Fill YAML front matter with project metadata
+   - Add Execution Instructions section
    - Define phases (typically 5-10 for complex changes)
    - Write pre-flight validation script
    - Write bash scripts for each phase
-   - Define success criteria per phase
+   - Add Validation Checklist with checkboxes per step
+   - Add Report marker per step
+   - Include phase validation step at end of each phase
+   - Add Agent Execution Notes section
    - Include rollback procedure
 
 3. **Save Plan**
@@ -110,13 +114,16 @@ fi
 To execute an existing execution plan:
 
 1. **Read the entire plan** before starting
-2. **Run Pre-Flight Validation** - Stop if any check fails
-3. **Execute phases in order**
+2. **Follow Execution Instructions** - Execute sequentially, no batching, stop on failure
+3. **Run Pre-Flight Validation** - Stop if any check fails
+4. **Execute phases in order**
    - Mark autonomous phases (`**Autonomous:** YES`) - execute without confirmation
    - Pause at approval points (warning indicator) - wait for user confirmation
-4. **Verify success criteria** after each phase
-5. **Update plan status** in YAML front matter as phases complete
-6. **Handle failures** - Run rollback if needed, document in Dev Agent Record
+   - Edit plan file to mark Validation Checklist checkboxes as items are verified
+5. **Report after each step** using the Report marker format
+6. **Verify Validation Checklist** after each step
+7. **Update plan status** in YAML front matter as phases complete
+8. **Handle failures** - Run rollback if needed, document in Dev Agent Record
 
 ### Mode 3: Archive Completed Plan
 
@@ -166,9 +173,12 @@ For detailed guidance, refer to:
 Before executing any plan, verify:
 
 - [ ] YAML front matter complete (title, created, status, agent, etc.)
+- [ ] Execution Instructions section present
 - [ ] Pre-flight validation script covers all prerequisites
 - [ ] Each phase has `**Autonomous:** YES/NO` marker
-- [ ] Each phase has explicit success criteria
+- [ ] Each step has Validation Checklist with checkboxes
+- [ ] Each step has Report marker
 - [ ] Approval points only for destructive operations
+- [ ] Agent Execution Notes section present
 - [ ] Rollback procedure included
 - [ ] Dev Agent Record section present (empty, to be filled)

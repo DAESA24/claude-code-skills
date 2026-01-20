@@ -18,6 +18,18 @@ tags:
 
 ---
 
+## Execution Instructions
+
+- Execute steps SEQUENTIALLY in exact order listed
+- Complete ALL validation substeps before proceeding to next step
+- If ANY validation fails, STOP immediately and report failure
+- Do NOT skip validation steps
+- Do NOT batch multiple steps together
+- Report results after EACH step completion
+- When steps contain `- [ ]` checkboxes, EDIT THIS FILE to mark them `- [x]` as each item is verified
+
+---
+
 ## Test Plan Summary
 
 | Phase | Test Method | Success Indicator | Result |
@@ -100,9 +112,18 @@ echo "SUCCESS: Phase 1 Complete - <summary>"
 echo "========================================"
 ```
 
-**Success Criteria:**
+**Expected Results:** (optional)
 
-- <verifiable condition>
+- <measurable outcome>
+
+**Validation Checklist:**
+
+- [ ] <verifiable condition>
+- [ ] <verifiable condition>
+
+**Instruction:** Mark each checkbox in this file as validation is confirmed.
+
+**Report:** "STEP 1.N COMPLETE: <summary with key metrics>"
 
 ---
 
@@ -130,9 +151,38 @@ Proceed? (yes/no)
 # <implementation>
 ```
 
-**Success Criteria:**
+**Expected Results:** (optional)
 
-- <verifiable condition>
+- <measurable outcome>
+
+**Validation Checklist:**
+
+- [ ] <verifiable condition>
+- [ ] <verifiable condition>
+
+**Instruction:** Mark each checkbox in this file as validation is confirmed.
+
+**Report:** "STEP 2.N COMPLETE: <summary with key metrics>"
+
+<!--
+GUIDANCE: Add a Phase Validation step at the end of each phase:
+
+### STEP X.N: Validate Phase X Completion
+
+**Autonomous:** YES
+
+**Actions:**
+- Compare current state to expected state
+- Verify all phase objectives met
+
+**Expected Results:**
+- [List what should be true after phase completes]
+
+**Validation Checklist:**
+- [ ] All phase objectives verified
+
+**Report:** "STEP X.N COMPLETE: Phase X validation passed"
+-->
 
 ---
 
@@ -164,6 +214,29 @@ echo "SUCCESS: Rollback complete"
 - [ ] <primary goal achieved>
 - [ ] <secondary goal achieved>
 - [ ] <no regressions introduced>
+
+---
+
+## Agent Execution Notes
+
+### Critical Execution Requirements
+
+1. <rule specific to this plan>
+2. <rule specific to this plan>
+
+### Preservation Targets
+
+- <files/directories that must NOT change>
+
+### Safe Modification Targets
+
+- <files/directories the plan may alter>
+
+### Execution Trigger
+
+- **Trigger phrase:** "execute the <plan name>"
+- **Plan location:** `<path/to/plan.md>`
+- **Resume guidance:** If interrupted, re-read this file and continue from last incomplete step.
 
 ---
 

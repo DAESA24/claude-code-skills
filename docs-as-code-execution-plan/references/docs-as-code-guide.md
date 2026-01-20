@@ -161,9 +161,36 @@ fi
 ```
 
 **Not acceptable:**
+
 - "Ensure files are copied correctly"
 - "Verify the operation succeeded"
 - "Check that everything looks good"
+
+**Multi-Point Validation (for complex steps):**
+
+When a step requires multiple verification points, use checkbox format:
+
+```markdown
+**Validation Checklist:**
+
+- [ ] Primary condition verified
+- [ ] Secondary condition verified
+- [ ] Edge case handled
+- [ ] No side effects on preserved targets
+
+**Instruction:** Mark each checkbox in this file as validation is confirmed.
+```
+
+**In-Place Marking:**
+
+- When steps contain `- [ ]` checkboxes, edit the plan file to mark them `- [x]` as each item is verified
+- This creates a persistent record for multi-session execution
+- Distinguishes between "reported as done" vs. "actually marked done in file"
+
+**When to Use:**
+
+- Use `- [ ]` checkboxes when the step needs persistent tracking (mark in file)
+- Use `-` bullet points when verification is transient (report in response only)
 
 ---
 
@@ -217,6 +244,51 @@ fi
 **Not:** Separate checks for existence, size, content (wastes tokens)
 
 **Token savings:** ~4-6k tokens (combined vs. individual checks)
+
+**Expected Results Block (optional):**
+
+For steps with measurable outcomes, add explicit expected values:
+
+```markdown
+**Expected Results:**
+
+- File count: ~178 (may vary)
+- Directory exists: YES
+- Exit code: 0
+```
+
+**When to Use:**
+
+- Operations produce countable outputs
+- Specific values can be predicted
+- Partial success needs detection
+
+---
+
+### 6. Explicit Execution Rules
+
+**Rule:** Include explicit execution instructions in every plan.
+
+**Why:** LLMs may optimize or parallelize unless told not to. Explicit rules prevent:
+
+- Skipping validation steps
+- Batching steps that should run sequentially
+- Continuing after failures
+
+**Standard Execution Instructions Block:**
+
+```markdown
+## Execution Instructions
+
+- Execute steps SEQUENTIALLY in exact order listed
+- Complete ALL validation substeps before proceeding to next step
+- If ANY validation fails, STOP immediately and report failure
+- Do NOT skip validation steps
+- Do NOT batch multiple steps together
+- Report results after EACH step completion
+```
+
+**Savings:** Prevents expensive re-execution due to missed validations or incorrect ordering.
 
 ---
 
@@ -289,6 +361,14 @@ echo "=== ROLLING BACK ==="
 echo "✅ Rollback complete"
 ```
 ```
+
+**Multi-Session Support:**
+
+Plans may span multiple chat sessions. Include in Agent Execution Notes:
+
+- Trigger phrase for resuming execution
+- Plan file location
+- Resume guidance: "If interrupted, re-read this file and continue from last incomplete step"
 
 ---
 
@@ -469,6 +549,93 @@ fi
 ```
 
 **Why:** Enables safe retry after failures.
+
+---
+
+### Pattern 4: Per-Step Report Markers
+
+**Rule:** Every step should have a standardized report format.
+
+**Format:**
+
+```markdown
+**Report:** "STEP X.Y COMPLETE: <summary with key metrics>"
+```
+
+**Examples:**
+
+```markdown
+**Report:** "STEP 0.1 COMPLETE: Baseline snapshots created (5 snapshots)"
+**Report:** "STEP 2.3 COMPLETE: Files migrated (178 files, 0 errors)"
+**Report:** "STEP 3.1 COMPLETE: Git repository initialized"
+```
+
+**Why:**
+
+- Enables progress tracking across phases
+- Provides consistent format for LLM to parse
+- Creates audit trail in execution logs
+
+---
+
+### Pattern 5: Agent Execution Notes
+
+**Rule:** Include a dedicated section for agent-specific context at the end of plans.
+
+**Structure:**
+
+```markdown
+## Agent Execution Notes
+
+### Critical Execution Requirements
+1. [Numbered list of rules specific to this plan]
+
+### Preservation Targets
+- [Files/directories that must NOT change]
+
+### Safe Modification Targets
+- [Files/directories the plan may alter]
+
+### Execution Trigger
+- **Trigger phrase:** "execute the [plan name]"
+- **Plan location:** `path/to/plan.md`
+- **Resume guidance:** If interrupted, re-read this file and continue from last incomplete step.
+```
+
+**Why:**
+
+- Provides explicit guardrails for LLM execution
+- Prevents accidental modification of critical files
+- Enables multi-session execution with clear resume instructions
+
+---
+
+### Pattern 6: Phase Boundary Validation
+
+**Rule:** Add a dedicated validation step at the end of each phase.
+
+**Pattern:**
+
+```markdown
+### STEP X.N: Validate Phase X Completion
+
+**Autonomous:** YES
+
+**Actions:**
+- Compare current state to expected state
+- Verify all phase objectives met
+
+**Expected Results:**
+- [List what should be true after phase completes]
+
+**Report:** "STEP X.N COMPLETE: Phase X validation passed"
+```
+
+**Why:**
+
+- Catches issues at phase boundaries before they compound
+- Creates natural checkpoint for multi-session execution
+- Provides clear phase completion signal
 
 ---
 
