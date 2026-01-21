@@ -53,6 +53,15 @@ To create a new execution plan:
    - Save to project's `docs/` folder
    - Follow the file naming convention (see below)
 
+4. **Post-Draft Parallelization Review** (optional)
+   - Evaluate parallelization potential using decision criteria (see guide Pattern 7)
+   - If viable:
+     a. Identify which tasks can parallelize (2+ independent tasks in same phase)
+     b. Uncomment and populate the parallelization fields (Dependencies, Output Artifacts, etc.)
+     c. Add phase parallelization summaries
+     d. Propose strategy to user with rationale
+   - If not viable: remove all parallelization HTML comment blocks from the plan (avoids context bloat)
+
 ## File Naming Convention
 
 All execution plans follow this naming pattern:
@@ -114,16 +123,25 @@ fi
 To execute an existing execution plan:
 
 1. **Read the entire plan** before starting
-2. **Follow Execution Instructions** - Execute sequentially, no batching, stop on failure
-3. **Run Pre-Flight Validation** - Stop if any check fails
-4. **Execute phases in order**
+2. **Check for parallelization annotations**
+   - Look for `**Parallelizable:** YES` markers in steps
+   - Look for phase-level `**Parallelization:**` summaries
+   - If annotations present and orchestrator verification commands exist:
+     a. Identify independent task groups
+     b. Spawn sub-agents for concurrent execution
+     c. After completion, run Orchestrator Verification commands
+     d. Report consolidated results before proceeding
+   - If no annotations: continue with sequential execution
+3. **Follow Execution Instructions** - Execute sequentially, no batching, stop on failure
+4. **Run Pre-Flight Validation** - Stop if any check fails
+5. **Execute phases in order**
    - Mark autonomous phases (`**Autonomous:** YES`) - execute without confirmation
    - Pause at approval points (warning indicator) - wait for user confirmation
    - Edit plan file to mark Validation Checklist checkboxes as items are verified
-5. **Report after each step** using the Report marker format
-6. **Verify Validation Checklist** after each step
-7. **Update plan status** in YAML front matter as phases complete
-8. **Handle failures** - Run rollback if needed, document in Dev Agent Record
+6. **Report after each step** using the Report marker format
+7. **Verify Validation Checklist** after each step
+8. **Update plan status** in YAML front matter as phases complete
+9. **Handle failures** - Run rollback if needed, document in Dev Agent Record
 
 ### Mode 3: Archive Completed Plan
 
@@ -182,3 +200,7 @@ Before executing any plan, verify:
 - [ ] Agent Execution Notes section present
 - [ ] Rollback procedure included
 - [ ] Dev Agent Record section present (empty, to be filled)
+- [ ] (If parallel) Parallelizable steps have `**Dependencies:**` annotation
+- [ ] (If parallel) Parallelizable steps have `**Output Artifacts:**` section
+- [ ] (If parallel) Parallelizable steps have `**Orchestrator Verification:**` commands
+- [ ] (If parallel) Phases with parallel steps have parallelization summary

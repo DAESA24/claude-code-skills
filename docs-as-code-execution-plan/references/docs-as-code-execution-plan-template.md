@@ -27,6 +27,7 @@ tags:
 - Do NOT batch multiple steps together
 - Report results after EACH step completion
 - When steps contain `- [ ]` checkboxes, EDIT THIS FILE to mark them `- [x]` as each item is verified
+- If parallelization annotations are present, evaluate whether to spawn sub-agents (see Pattern 7 in guide)
 
 ---
 
@@ -99,6 +100,10 @@ echo "========================================"
 ## Phase 1: <Phase Name>
 
 **Autonomous:** YES
+<!-- Optional parallelization fields (remove if not using sub-agents):
+**Dependencies:** None | Depends on: X.Y
+**Parallelizable:** YES | NO
+-->
 
 ```bash
 echo ""
@@ -116,6 +121,17 @@ echo "========================================"
 
 - <measurable outcome>
 
+<!-- Optional for parallelizable steps:
+**Output Artifacts:**
+- File: `<path/to/output>`
+
+**Orchestrator Verification:**
+```bash
+# Commands orchestrator runs to validate sub-agent work
+[ -f "<path/to/output>" ] && echo "✅ Output exists"
+```
+-->
+
 **Validation Checklist:**
 
 - [ ] <verifiable condition>
@@ -130,6 +146,10 @@ echo "========================================"
 ## Phase 2: <Phase Name>
 
 **Autonomous:** YES/NO
+<!-- Optional phase-level parallelization summary:
+**Parallelization:** Steps X.1, X.2, X.3 can run concurrently (no dependencies)
+**Sequential requirement:** Step X.4 must wait for X.1-X.3 completion
+-->
 
 <!-- If NO, include: -->
 ### USER APPROVAL REQUIRED

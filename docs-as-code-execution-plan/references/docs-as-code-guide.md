@@ -288,6 +288,8 @@ For steps with measurable outcomes, add explicit expected values:
 - Report results after EACH step completion
 ```
 
+**Note on Parallelization:** When steps include parallelization annotations (`**Dependencies:** None`, `**Parallelizable:** YES`), the orchestrator may spawn sub-agents for concurrent execution. Sequential execution remains the default; parallelization is opt-in via explicit annotations.
+
 **Savings:** Prevents expensive re-execution due to missed validations or incorrect ordering.
 
 ---
@@ -636,6 +638,96 @@ fi
 - Catches issues at phase boundaries before they compound
 - Creates natural checkpoint for multi-session execution
 - Provides clear phase completion signal
+
+---
+
+### Pattern 7: Sub-Agent Parallelization
+
+**Rule:** When multiple independent tasks exist within a phase, consider delegating to parallel sub-agents for context optimization.
+
+**When to Use:**
+
+- 2+ tasks in same phase have no dependencies on each other
+- Each task has verifiable output artifacts
+- Orchestrator can validate results without sub-agent context
+- Task complexity justifies sub-agent spawn overhead
+
+**When NOT to Use:**
+
+- Fewer than 2 independent tasks in phase
+- Tasks are simple (< 2 bash commands each)
+- Validation requires context sub-agent has but orchestrator lacks
+- Output artifacts overlap (race condition risk)
+- User prefers visibility over speed
+
+**Phase-Level Annotation:**
+
+```markdown
+## Phase 2: Database Setup
+
+**Parallelization:** Steps 2.1, 2.2, 2.3 can run concurrently (no dependencies)
+**Sequential requirement:** Step 2.4 must wait for 2.1-2.3 completion
+```
+
+**Step-Level Annotations (for parallelizable steps):**
+
+```markdown
+### STEP 2.1: Create database migration script
+
+**Autonomous:** YES
+**Dependencies:** None  <!-- or "Depends on: 2.0" if sequential required -->
+**Parallelizable:** YES
+
+**Output Artifacts:**
+- File: `migrations/001_add_users_table.sql`
+- File: `migrations/001_add_users_table_test.sql`
+
+**Orchestrator Verification:**
+```bash
+# Commands the main session runs to validate sub-agent work
+[ -f "migrations/001_add_users_table.sql" ] && echo "✅ Migration file exists"
+grep -q "CREATE TABLE users" migrations/001_add_users_table.sql && echo "✅ Table creation present"
+```
+```
+
+**Sub-Agent Task Prompt Template:**
+
+When spawning sub-agents, use this structure:
+
+```markdown
+## Task Assignment
+
+**Step:** [Step number and title]
+**From Plan:** [Plan file path]
+
+**Actions:**
+[Copied from plan step]
+
+**Output Artifacts Required:**
+[Copied from plan step]
+
+**Success Criteria:**
+[Copied from plan step]
+
+**Important:**
+- Complete ONLY this specific step
+- Do NOT proceed to other steps
+- Report completion with artifact verification
+```
+
+**Orchestrator Validation Flow:**
+
+1. Spawn sub-agents for independent tasks (parallel)
+2. Wait for all sub-agents to complete
+3. Run Orchestrator Verification commands for each task
+4. Report consolidated results before proceeding
+5. If any verification fails, report failure and stop
+
+**Why:**
+
+- Reduces context accumulation in orchestrating session (30-50% savings for parallelizable plans)
+- Enables horizontal scaling for independent operations
+- Maintains audit trail through verification commands
 
 ---
 
