@@ -7,15 +7,15 @@ description: This skill should be used when users want to download audio from Yo
 
 ## Overview
 
-Download audio from YouTube videos as high-quality MP3 files with embedded metadata, thumbnails, and detailed metadata JSON files. Files are automatically saved to the pbc-media-download downloads directory for easy access.
+Download audio from YouTube videos as high-quality MP3 files with embedded metadata, thumbnails, and detailed metadata JSON files. Files are automatically saved to the pbc-media-ingestion downloads directory for easy access.
 
 ## Quick Start
 
-To download audio from a YouTube video, invoke the pbc-media-download Python script with the `--audio-only` flag:
+To download audio from a YouTube video, invoke the pbc-media-ingestion Python script with the `--audio-only` flag:
 
 ```bash
-/c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/.venv/Scripts/python.exe \
-  /c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/scripts/download_youtube.py \
+/c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/.venv/Scripts/python.exe \
+  /c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/scripts/download_youtube.py \
   "<YOUTUBE_URL>" --audio-only
 ```
 
@@ -39,8 +39,8 @@ This makes the audio files ideal for music players, transcription services, and 
 Execute the command with a YouTube URL:
 
 ```bash
-/c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/.venv/Scripts/python.exe \
-  /c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/scripts/download_youtube.py \
+/c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/.venv/Scripts/python.exe \
+  /c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/scripts/download_youtube.py \
   "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --audio-only
 ```
 
@@ -57,7 +57,7 @@ The script will:
 If you prefer using the global yt-dlp command with the audio-only configuration preset:
 
 ```bash
-yt-dlp --config-location /c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/configs/audio-only.conf "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+yt-dlp --config-location /c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/configs/audio-only.conf "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
 Both approaches produce identical results. The Python script provides more flexibility for future enhancements.
@@ -67,8 +67,8 @@ Both approaches produce identical results. The Python script provides more flexi
 To download audio from all videos in a playlist, provide the playlist URL:
 
 ```bash
-/c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/.venv/Scripts/python.exe \
-  /c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/scripts/download_youtube.py \
+/c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/.venv/Scripts/python.exe \
+  /c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/scripts/download_youtube.py \
   "https://www.youtube.com/playlist?list=PLxxxx" --audio-only
 ```
 
@@ -79,7 +79,7 @@ Each video in the playlist will be downloaded as a separate MP3 file with its ow
 All downloaded files are automatically saved to:
 
 ```text
-C:\Users\drewa\pbcs\pbc-media-download\tool-yt-dlp\downloads\
+C:\Users\drewa\pbcs\pbc-media-ingestion\tool-yt-dlp\downloads\
 ```
 
 Files are named using the YouTube video title with these extensions:
@@ -92,8 +92,8 @@ Files are named using the YouTube video title with these extensions:
 ### Download a Music Video
 
 ```bash
-/c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/.venv/Scripts/python.exe \
-  /c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/scripts/download_youtube.py \
+/c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/.venv/Scripts/python.exe \
+  /c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/scripts/download_youtube.py \
   "https://www.youtube.com/watch?v=jNQXAC9IVRw" --audio-only
 ```
 
@@ -102,8 +102,8 @@ This downloads the first YouTube video ever uploaded as an MP3 file.
 ### Download a Podcast Episode
 
 ```bash
-/c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/.venv/Scripts/python.exe \
-  /c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/scripts/download_youtube.py \
+/c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/.venv/Scripts/python.exe \
+  /c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/scripts/download_youtube.py \
   "https://www.youtube.com/@YourPodcastChannel/videos" --audio-only
 ```
 
@@ -112,8 +112,8 @@ This downloads audio from the podcast's YouTube channel.
 ### Download a Lecture
 
 ```bash
-/c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/.venv/Scripts/python.exe \
-  /c/Users/drewa/pbcs/pbc-media-download/tool-yt-dlp/scripts/download_youtube.py \
+/c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/.venv/Scripts/python.exe \
+  /c/Users/drewa/pbcs/pbc-media-ingestion/tool-yt-dlp/scripts/download_youtube.py \
   "https://www.youtube.com/watch?v=LectureLinkHere" --audio-only
 ```
 
@@ -132,14 +132,19 @@ The audio can then be transcribed or archived for reference.
 
 ### Command Not Found
 
-If you see "command not found", ensure the full path to Python is correct. The pbc-media-download must be installed at `C:\Users\drewa\pbcs\pbc-media-download\tool-yt-dlp\`.
+If you see "command not found", ensure the full path to Python is correct. The pbc-media-ingestion must be installed at `C:\Users\drewa\pbcs\pbc-media-ingestion\tool-yt-dlp\`.
 
 ### ffmpeg Missing
 
-The script requires ffmpeg to convert video streams to MP3. Install it with:
+The script requires ffmpeg to convert video streams to MP3. FFmpeg is installed as part of the pbc-media-ingestion PBC:
+
+- **Location:** `C:\Users\drewa\pbcs\pbc-media-ingestion\tool-ffmpeg\bin\`
+- **Must be in PATH:** Ensure `C:\Users\drewa\pbcs\pbc-media-ingestion\tool-ffmpeg\bin` is in system PATH
+
+Verify ffmpeg is accessible:
 
 ```bash
-winget install ffmpeg
+ffmpeg -version
 ```
 
 ### Large Video Files Take Time
