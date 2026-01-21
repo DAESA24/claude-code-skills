@@ -258,6 +258,12 @@ echo "SUCCESS: Rollback complete"
 - **Plan location:** `<path/to/plan.md>`
 - **Resume guidance:** If interrupted, re-read this file and continue from last incomplete step.
 
+### Parallelization Assessment
+
+<!-- Claude fills this in during plan creation -->
+**Decision:** [Viable - see annotations above | Not viable]
+**Rationale:** [Brief explanation of why parallelization is or isn't appropriate for this plan]
+
 ---
 
 ## Dev Agent Record

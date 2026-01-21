@@ -53,14 +53,18 @@ To create a new execution plan:
    - Save to project's `docs/` folder
    - Follow the file naming convention (see below)
 
-4. **Post-Draft Parallelization Review** (optional)
-   - Evaluate parallelization potential using decision criteria (see guide Pattern 7)
-   - If viable:
-     a. Identify which tasks can parallelize (2+ independent tasks in same phase)
-     b. Uncomment and populate the parallelization fields (Dependencies, Output Artifacts, etc.)
-     c. Add phase parallelization summaries
-     d. Propose strategy to user with rationale
-   - If not viable: remove all parallelization HTML comment blocks from the plan (avoids context bloat)
+4. **Post-Draft Parallelization Review**
+
+   Before finalizing the plan, evaluate parallelization potential:
+
+   a. Review Pattern 7 decision criteria in the guide
+   b. Assess: Are there 2+ independent tasks in any phase?
+   c. Document decision in the plan's Agent Execution Notes section:
+      - If parallelizing: Add annotations per the guide, populate parallelization fields
+      - If not parallelizing: Add "**Parallelization Assessment:** Not viable - [brief reason]"
+   d. Remove unused HTML comment blocks from the plan
+
+   **Required output:** The plan must contain either parallelization annotations OR an explicit "not viable" note in Agent Execution Notes. Plans without this assessment are incomplete.
 
 ## File Naming Convention
 
@@ -197,6 +201,7 @@ Before executing any plan, verify:
 - [ ] Each step has Validation Checklist with checkboxes
 - [ ] Each step has Report marker
 - [ ] Approval points only for destructive operations
+- [ ] Parallelization assessment documented (annotations added OR "not viable" note in Agent Execution Notes)
 - [ ] Agent Execution Notes section present
 - [ ] Rollback procedure included
 - [ ] Dev Agent Record section present (empty, to be filled)
