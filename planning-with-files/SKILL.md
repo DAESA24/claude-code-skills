@@ -16,14 +16,17 @@ Work like Manus: Use persistent markdown files as your "working memory on disk."
 
 ## Directory Structure
 
-All planning artifacts live in the workspace's `.claude/` directory:
+All planning artifacts live in the workspace's `_planning-with-files/` directory (underscore prefix for Obsidian compatibility):
 
 ```
-.claude/
-└── planning-with-files/
-    └── YYYY-MM-DD-topic-slug/
-        ├── task_plan.md    # Operational hub with frontmatter
-        └── notes.md        # Research and findings
+_planning-with-files/
+├── YYYY-MM-DD-topic-slug/
+│   ├── task_plan.md    # Operational hub with frontmatter
+│   └── notes.md        # Research and findings
+└── archive/
+    └── x-YYYY-MM-DD-topic-slug/  # Completed/abandoned sessions
+        ├── task_plan.md
+        └── notes.md
 ```
 
 ### Naming Convention
@@ -42,7 +45,7 @@ Examples:
 
 Before ANY complex task:
 
-1. **Create the planning directory** in `.claude/planning-with-files/`
+1. **Create the planning directory** in `_planning-with-files/`
 2. **Create `task_plan.md`** with frontmatter and phases
 3. **Update after each phase** - mark [x] and change status
 4. **Read before deciding** - refresh goals in attention window
@@ -52,8 +55,8 @@ Before ANY complex task:
 
 | File | Location | Purpose | When to Update |
 |------|----------|---------|----------------|
-| `task_plan.md` | `.claude/planning-with-files/[date-slug]/` | Track phases, decisions, frontmatter | After each phase |
-| `notes.md` | `.claude/planning-with-files/[date-slug]/` | Store findings and research | During research |
+| `task_plan.md` | `_planning-with-files/[date-slug]/` | Track phases, decisions, frontmatter | After each phase |
+| `notes.md` | `_planning-with-files/[date-slug]/` | Store findings and research | During research |
 
 ## Frontmatter Schema
 
@@ -102,7 +105,7 @@ Loop 4: Finalize frontmatter → deliver
 
 **Before starting:**
 ```bash
-mkdir .claude/planning-with-files/YYYY-MM-DD-topic-slug/
+mkdir _planning-with-files/YYYY-MM-DD-topic-slug/
 Write task_plan.md  # With creation frontmatter
 ```
 
@@ -124,6 +127,8 @@ Write notes.md     # Don't stuff context, store in file
 **At completion:**
 ```bash
 Edit task_plan.md  # Update frontmatter: completed, outcome, phases
+# Archive the plan directory
+mv _planning-with-files/[date-slug]/ _planning-with-files/archive/x-[date-slug]/
 ```
 
 ## task_plan.md Template
@@ -227,6 +232,17 @@ If a URL is unavailable (e.g., information from local files or prior knowledge),
 - `- **Source:** Local file analysis (path/to/file)`
 - `- **Source:** Prior knowledge (no URL)`
 
+### 8. Archive Completed Sessions
+
+After finalizing frontmatter with terminal status (`completed` or `abandoned`):
+
+1. Create `_planning-with-files/archive/` if it doesn't exist
+2. Move the plan directory to `archive/x-[directory-name]/`
+3. If collision: append version suffix (`-v2`, `-v3`)
+4. Report: "Archived to archive/x-[directory-name]/"
+
+This keeps active plans easy to find while preserving history.
+
 ## When to Use This Pattern
 
 **Use for:**
@@ -274,6 +290,62 @@ When `/pickup-general` loads a handoff with an `active_plan` field:
 3. Continue execution from where it left off
 
 The plan file is the source of truth; the handoff is the pointer.
+
+## Archiving Completed Sessions
+
+When a planning session reaches terminal status, archive it to keep the active directory clean.
+
+### When to Archive
+
+Archive immediately after updating frontmatter to:
+
+- `status: completed`
+- `status: abandoned`
+
+### Archive Procedure
+
+1. **Verify terminal status** - Confirm `task_plan.md` frontmatter has `status: completed` or `status: abandoned`
+2. **Create archive directory** - `mkdir -p _planning-with-files/archive/`
+3. **Move with x- prefix** - `mv [plan-dir]/ archive/x-[plan-dir]/`
+4. **Handle collisions** - If target exists, append version suffix:
+   - `x-2026-01-24-my-task/` (first)
+   - `x-2026-01-24-my-task-v2/` (collision)
+   - `x-2026-01-24-my-task-v3/` (rare)
+5. **Report to user** - "Archived to archive/x-[directory-name]/"
+
+### Example
+
+Before completion:
+
+```text
+_planning-with-files/
+├── 2026-01-24-implement-feature/
+│   ├── task_plan.md
+│   └── notes.md
+└── 2026-01-23-research-apis/
+    ├── task_plan.md
+    └── notes.md
+```
+
+After completing `2026-01-24-implement-feature`:
+
+```text
+_planning-with-files/
+├── archive/
+│   └── x-2026-01-24-implement-feature/
+│       ├── task_plan.md
+│       └── notes.md
+└── 2026-01-23-research-apis/
+    ├── task_plan.md
+    └── notes.md
+```
+
+### Why Archive?
+
+- **Visual clarity:** The `x-` prefix signals "this is done"
+- **Clean directory:** Active plans are easy to find
+- **History preserved:** Archived plans remain accessible
+- **Consistent pattern:** Matches other archive conventions (handoffs, feature-backlog-staging)
 
 ## Anti-Patterns to Avoid
 

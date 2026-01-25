@@ -208,12 +208,12 @@ This is why Manus can handle ~50 tool calls without losing track. The plan file 
 ### Step 1: Create Planning Directory
 
 ```bash
-mkdir .claude/planning-with-files/2026-01-12-morning-exercise-research/
+mkdir _planning-with-files/2026-01-12-morning-exercise-research/
 ```
 
 ### Step 2: Create task_plan.md with Frontmatter
 
-`.claude/planning-with-files/2026-01-12-morning-exercise-research/task_plan.md`:
+`_planning-with-files/2026-01-12-morning-exercise-research/task_plan.md`:
 
 ```markdown
 ---
@@ -251,7 +251,7 @@ Create a research summary on the benefits of morning exercise.
 
 ### Step 3: Research and Store Notes
 
-`.claude/planning-with-files/2026-01-12-morning-exercise-research/notes.md`:
+`_planning-with-files/2026-01-12-morning-exercise-research/notes.md`:
 
 ```markdown
 # Notes: Morning Exercise Benefits
@@ -293,7 +293,7 @@ Example deliverable:
 ```markdown
 ---
 created: 2026-01-12
-source: ".claude/planning-with-files/2026-01-12-morning-exercise-research"
+source: "_planning-with-files/2026-01-12-morning-exercise-research"
 ---
 
 # Morning Exercise Benefits: Research Summary
@@ -327,13 +327,12 @@ deliverables:
 ### Final Directory State
 
 ```
-.claude/
-└── planning-with-files/
-    └── 2026-01-12-morning-exercise-research/
-        ├── task_plan.md    # Completed, frontmatter enriched
-        └── notes.md        # Research preserved
+_planning-with-files/
+└── 2026-01-12-morning-exercise-research/
+    ├── task_plan.md    # Completed, frontmatter enriched
+    └── notes.md        # Research preserved
 
 [deliverable location depends on workspace]
 ```
 
-The planning artifacts stay in `.claude/` for historical reference. The deliverable goes wherever is appropriate for the workspace context.
+The planning artifacts stay in `_planning-with-files/` for historical reference. The deliverable goes wherever is appropriate for the workspace context.
