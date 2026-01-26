@@ -1,0 +1,72 @@
+# Skill Development Configuration
+# Copy this file to your skill-dev project root and customize
+#
+# This config drives the /skill-enhance workflow:
+# - Tells Claude where the installed skill lives
+# - Defines which files to update and in what order
+# - Configures project paths for feature backlog, plans, etc.
+
+# =============================================================================
+# SKILL METADATA (Required)
+# =============================================================================
+
+# Human-readable name (e.g., "Planning with Files")
+skill_name: ""
+
+# Directory name / skill ID - must match installed directory name
+# Use hyphen-case (e.g., "planning-with-files")
+skill_id: ""
+
+# Current status: active | draft | deprecated
+status: "draft"
+
+# When this config was created
+created: ""
+
+# Brief description of what the skill does
+description: >
+  TODO: Describe what this skill enables Claude to do.
+
+# =============================================================================
+# INSTALLATION (Required)
+# =============================================================================
+
+installation:
+  # Path to the installed skill (use ~ for home directory)
+  installed_path: "~/.claude/skills/YOUR-SKILL-NAME/"
+
+  # Command to validate the skill (uses skills-ref CLI)
+  validate_command: "skills-ref validate ~/.claude/skills/YOUR-SKILL-NAME"
+
+# =============================================================================
+# SKILL FILES (Required)
+# =============================================================================
+
+# The files that make up the skill, in update order
+# Order matters: dependencies should come before dependents
+# Typically: reference files -> examples -> SKILL.md (main entry point last)
+
+skill_files:
+  update_order:
+    - "SKILL.md"
+    # Add other files as needed:
+    # - "reference.md"
+    # - "examples.md"
+    # - "assets/templates/some-template.md"
+
+# =============================================================================
+# PROJECT STRUCTURE (Optional - defaults shown)
+# =============================================================================
+
+project_structure:
+  # Where feature backlog items are captured
+  feature_backlog: "feature-backlog-staging/"
+
+  # Where execution plans are created
+  execution_plans: "docs/"
+
+  # Where completed execution plans are archived
+  archives: "docs/archives/"
+
+  # Where session insights are captured (optional)
+  user_context: "user-context/"
