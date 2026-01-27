@@ -731,6 +731,90 @@ When spawning sub-agents, use this structure:
 
 ---
 
+### Pattern 8: Pre-Execution Safety Check
+
+**Rule:** Before executing any plan, verify a git rollback point exists.
+
+**Why:** Failed execution without a rollback point can leave the codebase in an unrecoverable state. This check ensures safety before granting autonomous execution.
+
+**Pre-Execution Check Script:**
+
+```bash
+# Check if target directory is a git repo
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "⚠️ WARNING: Not a git repository. No rollback point available."
+    echo "Continue anyway? (yes/no)"
+    # Requires user confirmation to proceed
+fi
+
+# Check for uncommitted changes (staged and unstaged)
+if ! git diff --quiet HEAD 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
+    echo "⚠️ WARNING: Uncommitted changes detected."
+    echo ""
+    echo "Options:"
+    echo "  1. Create pre-execution commit (recommended)"
+    echo "  2. Stash changes"
+    echo "  3. Abort execution"
+    echo ""
+    # Wait for user choice
+fi
+
+# Record current HEAD for rollback reference
+PRE_EXEC_COMMIT=$(git rev-parse HEAD)
+echo "✅ Pre-execution commit: $PRE_EXEC_COMMIT"
+echo "   To rollback: git reset --hard $PRE_EXEC_COMMIT"
+```
+
+**Decision Flow:**
+
+```
+Pre-Flight: Git Status Check
+         │
+    Is git repo?
+    /          \
+  NO            YES
+   │              │
+Warn user     Has uncommitted
+(override?)    changes?
+   │          /      \
+   │        NO        YES
+   │         │         │
+   │    Continue   Offer options:
+   │         │     1. Commit
+   │         │     2. Stash
+   │         │     3. Abort
+   │         │         │
+   └─────────┴─────────┘
+             │
+      Record commit SHA
+             │
+      Continue execution
+```
+
+**Standardized Pre-Execution Commit Message:**
+
+```
+chore: pre-execution snapshot for [plan-name]
+
+Automatic commit created before executing:
+  [path/to/execution-plan.md]
+
+To rollback: git reset --hard [this-commit-sha]
+```
+
+**When to Use:**
+
+- Always before executing any docs-as-code plan
+- Especially critical for plans with destructive operations
+- Required before plans with `**Autonomous:** YES` phases
+
+**When to Skip (with user override):**
+
+- Non-git directories (user must explicitly confirm)
+- User explicitly requests skip (rare, discouraged)
+
+---
+
 ## LLM-Specific Formatting
 
 ### Status Prefixes (for LLM parsing)

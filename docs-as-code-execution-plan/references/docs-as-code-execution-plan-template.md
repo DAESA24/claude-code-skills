@@ -113,6 +113,37 @@ If interrupted, find last `[x]` item and resume from next unchecked `[ ]` item.
 ```bash
 echo "=== PRE-FLIGHT CHECKS ==="
 
+# Git Safety Check (Pattern 8)
+echo "--- Git Safety Check ---"
+
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "⚠️ WARNING: Not a git repository"
+    echo "   No automatic rollback point available"
+    echo "   Proceed with caution or initialize git first"
+    # Note: Plan execution continues but rollback will be manual
+else
+    # Check for uncommitted changes
+    if ! git diff --quiet HEAD 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
+        echo "⚠️ UNCOMMITTED CHANGES DETECTED"
+        echo ""
+        git status --short
+        echo ""
+        echo "Recommended: Create a commit before proceeding"
+        echo "Options:"
+        echo "  1. Run: git add -A && git commit -m 'chore: pre-execution snapshot'"
+        echo "  2. Run: git stash"
+        echo "  3. Abort and handle manually"
+        echo ""
+        echo "🚨 USER ACTION REQUIRED - choose an option before continuing"
+        exit 1
+    fi
+
+    # Record rollback point
+    PRE_EXEC_COMMIT=$(git rev-parse HEAD)
+    echo "✅ Rollback point: $PRE_EXEC_COMMIT"
+fi
+echo ""
+
 # Define paths
 # <define all paths used in the plan>
 
@@ -249,14 +280,26 @@ GUIDANCE: Add a Phase Validation step at the end of each phase:
 
 ## Rollback Procedure
 
+If a rollback point was captured during pre-flight:
+
 ```bash
 echo "=== ROLLBACK PROCEDURE ==="
 
-# Undo operations in reverse order
+# Step 1: Git reset to pre-execution state (if available)
+if [ -n "$PRE_EXEC_COMMIT" ]; then
+    echo "Resetting to pre-execution commit: $PRE_EXEC_COMMIT"
+    git reset --hard "$PRE_EXEC_COMMIT"
+    echo "✅ Git state restored"
+else
+    echo "⚠️ No pre-execution commit recorded"
+    echo "   Manual rollback required"
+fi
+
+# Step 2: Undo plan-specific operations in reverse order
 # <step 1>
 # <step 2>
 
-echo "SUCCESS: Rollback complete"
+echo "✅ Rollback complete"
 ```
 
 ---
@@ -311,6 +354,7 @@ echo "SUCCESS: Rollback complete"
 
 - **Executed By:** <agent name>
 - **Execution Date:** <YYYY-MM-DD HH:MM>
+- **Pre-Execution Commit:** <commit SHA or "N/A - not a git repo">
 - **Duration:** <actual duration>
 
 ### Execution Notes

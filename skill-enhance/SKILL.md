@@ -246,11 +246,18 @@ If execution is interrupted mid-phase:
 When all phases complete:
 
 1. Fill in "Dev Agent Record" section completely
-2. Update source feature backlog item:
-   - Set `status: implemented`
-   - Add `implemented_date: [today]`
+2. Archive source feature backlog item:
+   - Set `status: implemented` in frontmatter
+   - Add `implemented_date: [today]` in frontmatter
    - Rename file with `x-` prefix
-3. Report final summary to user
+   - Create `_feature-backlog-staging/archive/` if it doesn't exist
+   - Move renamed file to `_feature-backlog-staging/archive/`
+3. Archive this enhancement plan:
+   - Update YAML front matter `status: complete`
+   - Rename file with `x-` prefix
+   - Create `docs/archive/` if it doesn't exist
+   - Move renamed plan to `docs/archive/`
+4. Report final summary to user
 ````
 
 ### Step 6: Save Execution Plan
@@ -299,10 +306,16 @@ When executing a generated skill enhancement plan, follow the **validation loop 
 
 **At completion:**
 - Fill in the "Dev Agent Record" section
-- Update the source feature backlog item:
-  - Set `status: implemented`
-  - Add `implemented_date: <today>`
-  - Rename with `x-` prefix (archive convention)
+- Archive the source feature backlog item:
+  - Set `status: implemented` and `implemented_date: <today>`
+  - Rename with `x-` prefix
+  - Create `_feature-backlog-staging/archive/` if needed
+  - Move to archive subdirectory
+- Archive this enhancement plan:
+  - Update status to `complete` in YAML front matter
+  - Rename with `x-` prefix
+  - Create `docs/archive/` if needed
+  - Move to archive subdirectory
 
 See `reference.md` for detailed protocol and `examples.md` for worked example.
 

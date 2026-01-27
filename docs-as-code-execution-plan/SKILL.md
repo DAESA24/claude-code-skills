@@ -129,7 +129,15 @@ fi
 To execute an existing execution plan:
 
 1. **Read the entire plan** before starting
-2. **Check for parallelization annotations**
+2. **Verify git rollback point** (Pattern 8 - Pre-Execution Safety Check)
+   - Check if working directory is a git repository
+   - If uncommitted changes exist, offer options:
+     a. Create pre-execution commit (recommended)
+     b. Stash changes
+     c. Abort execution
+   - Record the pre-execution commit SHA for rollback reference
+   - For non-git directories: warn user, require explicit confirmation to proceed
+3. **Check for parallelization annotations**
    - Look for `**Parallelizable:** YES` markers in steps
    - Look for phase-level `**Parallelization:**` summaries
    - If annotations present and orchestrator verification commands exist:
@@ -138,16 +146,16 @@ To execute an existing execution plan:
      c. After completion, run Orchestrator Verification commands
      d. Report consolidated results before proceeding
    - If no annotations: continue with sequential execution
-3. **Follow Execution Instructions** - Execute sequentially, no batching, stop on failure
-4. **Run Pre-Flight Validation** - Stop if any check fails
-5. **Execute phases in order**
+4. **Follow Execution Instructions** - Execute sequentially, no batching, stop on failure
+5. **Run Pre-Flight Validation** - Stop if any check fails
+6. **Execute phases in order**
    - Mark autonomous phases (`**Autonomous:** YES`) - execute without confirmation
    - Pause at approval points (warning indicator) - wait for user confirmation
    - Edit plan file to mark Validation Checklist checkboxes as items are verified
-6. **Report after each step** using the Report marker format
-7. **Verify Validation Checklist** after each step
-8. **Update plan status** in YAML front matter as phases complete
-9. **Handle failures** - Run rollback if needed, document in Dev Agent Record
+7. **Report after each step** using the Report marker format
+8. **Verify Validation Checklist** after each step
+9. **Update plan status** in YAML front matter as phases complete
+10. **Handle failures** - Run rollback if needed, document in Dev Agent Record
 
 ### Mode 3: Archive Completed Plan
 
@@ -197,6 +205,7 @@ For detailed guidance, refer to:
 Before executing any plan, verify:
 
 - [ ] YAML front matter complete (title, created, status, agent, etc.)
+- [ ] Pre-execution rollback point established (git commit SHA recorded or non-git confirmed)
 - [ ] Execution Instructions section present
 - [ ] Pre-flight validation script covers all prerequisites
 - [ ] Each phase has `**Autonomous:** YES/NO` marker

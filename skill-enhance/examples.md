@@ -220,6 +220,8 @@ Follow the validation loop protocol in reference.md:
 | Validation checklists | `[ ]` | `[x]` |
 | Errors Encountered | `(none yet)` | Actual errors logged |
 | Dev Agent Record | `(pending)` | Filled with execution data |
+| Feature backlog item | In `_feature-backlog-staging/` | Archived to `_feature-backlog-staging/archive/x-*.md` |
+| Enhancement plan | In `docs/` | Archived to `docs/archive/x-*.md` |
 
 ## Error Logging Pattern
 
