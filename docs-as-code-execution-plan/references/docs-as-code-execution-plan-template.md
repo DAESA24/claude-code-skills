@@ -18,7 +18,42 @@ tags:
 
 ---
 
+## Execution Protocol: Validation Loop (MANDATORY)
+
+This plan follows the **validation-loop protocol**. The plan file is the operational hub - updates happen in THIS FILE, not just verbally.
+
+### The Loop - Non-Negotiable Steps
+
+**BEFORE each phase:**
+
+1. Read this plan file (or the relevant phase section)
+2. Refresh goals and acceptance criteria in attention window
+
+**AFTER completing each step:**
+
+1. Edit THIS FILE to mark the checkbox `[x]`
+2. Do NOT batch checkbox updates - mark IMMEDIATELY after each step
+
+**AFTER completing a phase:**
+
+1. Verify all checkboxes in the phase are marked `[x]`
+2. Report: "PHASE N COMPLETE: [summary]"
+3. Read the next phase section before proceeding
+
+**If an error occurs:**
+
+1. Log the error in "Errors Encountered" section IMMEDIATELY
+2. Then attempt resolution
+
+### Recovery
+
+If interrupted, find last `[x]` item and resume from next unchecked `[ ]` item.
+
+---
+
 ## Execution Instructions
+
+**Note:** Follow the Execution Protocol above. These instructions supplement the validation-loop protocol.
 
 - Execute steps SEQUENTIALLY in exact order listed
 - Complete ALL validation substeps before proceeding to next step
@@ -53,6 +88,12 @@ tags:
 ### Target State
 
 <What should exist after execution>
+
+---
+
+## Errors Encountered
+
+- (None yet - errors will be logged here during execution)
 
 ---
 

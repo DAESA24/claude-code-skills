@@ -124,6 +124,8 @@ fi
 
 ### Mode 2: Execute Existing Plan
 
+**Before executing any plan, review `references/execution-protocol-reference.md` for the validation loop protocol.**
+
 To execute an existing execution plan:
 
 1. **Read the entire plan** before starting
@@ -201,6 +203,8 @@ Before executing any plan, verify:
 - [ ] Each step has Validation Checklist with checkboxes
 - [ ] Each step has Report marker
 - [ ] Approval points only for destructive operations
+- [ ] Execution Protocol section present (after header, before Execution Instructions)
+- [ ] Errors Encountered section present (after Problem Statement)
 - [ ] Parallelization assessment documented (annotations added OR "not viable" note in Agent Execution Notes)
 - [ ] Agent Execution Notes section present
 - [ ] Rollback procedure included
