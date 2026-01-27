@@ -144,6 +144,34 @@ else
 fi
 echo ""
 
+# Skills Submodule Check (for skill enhancement plans)
+# Only run if plan modifies files in ~/.claude/skills/
+SKILLS_DIR="$HOME/.claude/skills"
+if [ -d "$SKILLS_DIR/.git" ] || [ -f "$SKILLS_DIR/.git" ]; then
+    echo "--- Skills Submodule Git Check ---"
+    cd "$SKILLS_DIR"
+
+    if ! git diff --quiet HEAD 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
+        echo "⚠️ UNCOMMITTED CHANGES IN SKILLS SUBMODULE"
+        echo ""
+        git status --short
+        echo ""
+        echo "Recommended: Create a commit before proceeding"
+        echo "Options:"
+        echo "  1. Run: git add -A && git commit -m 'chore: pre-execution snapshot'"
+        echo "  2. Run: git stash"
+        echo "  3. Abort and handle manually"
+        echo ""
+        echo "🚨 USER ACTION REQUIRED - choose an option before continuing"
+        exit 1
+    fi
+
+    PRE_EXEC_SKILL_COMMIT=$(git rev-parse HEAD)
+    echo "✅ Skills submodule rollback point: $PRE_EXEC_SKILL_COMMIT"
+    cd - > /dev/null
+fi
+echo ""
+
 # Define paths
 # <define all paths used in the plan>
 
@@ -295,6 +323,15 @@ else
     echo "   Manual rollback required"
 fi
 
+# Step 1b: Git reset skills submodule (if applicable)
+if [ -n "$PRE_EXEC_SKILL_COMMIT" ]; then
+    echo "Resetting skills submodule to: $PRE_EXEC_SKILL_COMMIT"
+    cd ~/.claude/skills
+    git reset --hard "$PRE_EXEC_SKILL_COMMIT"
+    echo "✅ Skills submodule restored"
+    cd - > /dev/null
+fi
+
 # Step 2: Undo plan-specific operations in reverse order
 # <step 1>
 # <step 2>
@@ -355,6 +392,7 @@ echo "✅ Rollback complete"
 - **Executed By:** <agent name>
 - **Execution Date:** <YYYY-MM-DD HH:MM>
 - **Pre-Execution Commit:** <commit SHA or "N/A - not a git repo">
+- **Pre-Execution Skill Commit:** <skills submodule SHA or "N/A - not applicable">
 - **Duration:** <actual duration>
 
 ### Execution Notes

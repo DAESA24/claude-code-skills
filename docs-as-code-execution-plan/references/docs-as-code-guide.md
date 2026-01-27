@@ -813,6 +813,38 @@ To rollback: git reset --hard [this-commit-sha]
 - Non-git directories (user must explicitly confirm)
 - User explicitly requests skip (rare, discouraged)
 
+**For Skill Enhancement Plans:**
+
+When a plan modifies files in `~/.claude/skills/` (a git submodule):
+
+1. Check the skills submodule FIRST:
+
+   ```bash
+   cd ~/.claude/skills
+   if ! git diff --quiet HEAD 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
+       echo "⚠️ UNCOMMITTED CHANGES IN SKILLS SUBMODULE"
+       git status --short
+       # Same options: commit/stash/abort
+   fi
+   PRE_EXEC_SKILL_COMMIT=$(git rev-parse HEAD)
+   echo "✅ Skills submodule rollback point: $PRE_EXEC_SKILL_COMMIT"
+   ```
+
+2. Record BOTH commit SHAs:
+   - `PRE_EXEC_COMMIT` - Working directory (dev repo)
+   - `PRE_EXEC_SKILL_COMMIT` - Skills submodule
+
+3. Rollback requires BOTH:
+
+   ```bash
+   # Rollback dev repo
+   git reset --hard $PRE_EXEC_COMMIT
+
+   # Rollback skills submodule
+   cd ~/.claude/skills
+   git reset --hard $PRE_EXEC_SKILL_COMMIT
+   ```
+
 ---
 
 ## LLM-Specific Formatting

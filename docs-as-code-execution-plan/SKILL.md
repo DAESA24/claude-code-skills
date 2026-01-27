@@ -137,6 +137,7 @@ To execute an existing execution plan:
      c. Abort execution
    - Record the pre-execution commit SHA for rollback reference
    - For non-git directories: warn user, require explicit confirmation to proceed
+   - **For skill enhancement plans:** Also check `~/.claude/skills/` submodule and record `PRE_EXEC_SKILL_COMMIT`
 3. **Check for parallelization annotations**
    - Look for `**Parallelizable:** YES` markers in steps
    - Look for phase-level `**Parallelization:**` summaries
@@ -206,6 +207,7 @@ Before executing any plan, verify:
 
 - [ ] YAML front matter complete (title, created, status, agent, etc.)
 - [ ] Pre-execution rollback point established (git commit SHA recorded or non-git confirmed)
+- [ ] (If skill enhancement) Skills submodule rollback point established
 - [ ] Execution Instructions section present
 - [ ] Pre-flight validation script covers all prerequisites
 - [ ] Each phase has `**Autonomous:** YES/NO` marker
