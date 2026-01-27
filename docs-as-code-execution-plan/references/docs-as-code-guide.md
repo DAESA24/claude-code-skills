@@ -847,6 +847,129 @@ When a plan modifies files in `~/.claude/skills/` (a git submodule):
 
 ---
 
+### Pattern 9: Project Subdirectory Convention
+
+**Rule:** Group all execution artifacts in a dated project subdirectory.
+
+**Why:** Flat files in `docs/` become unmanageable. Grouping related artifacts (plan, log, summary) enables:
+
+- Easy identification of related files
+- Clean archival of completed projects
+- Isolation of execution context
+
+**Directory Pattern:**
+
+```
+docs/YYYY-MM-DD-<project-slug>/
+```
+
+**Project Slug Rules:**
+
+- 2-4 words, kebab-case
+- Describes the goal/topic
+- Examples: `skill-upgrade`, `database-migration`, `auth-refactor`
+
+**File Naming Within Directory:**
+
+```
+YYYY-MM-DD-<project-slug>-execution-plan.md
+YYYY-MM-DD-<project-slug>-execution-log.jsonl
+YYYY-MM-DD-<project-slug>-execution-summary.md
+```
+
+**Example Structure:**
+
+```
+docs/
+├── 2026-01-27-skill-upgrade/
+│   ├── 2026-01-27-skill-upgrade-execution-plan.md
+│   ├── 2026-01-27-skill-upgrade-execution-log.jsonl
+│   └── 2026-01-27-skill-upgrade-execution-summary.md
+└── archives/
+    └── 2026-01-20-auth-migration/
+        └── ...
+```
+
+**When Creating a Plan:**
+
+1. Generate project slug from task description (2-4 words)
+2. Create directory: `docs/YYYY-MM-DD-<project-slug>/`
+3. Save plan inside directory with matching filename
+
+**Token savings:** Eliminates confusion when multiple plans exist; clear organization reduces context needed for file operations.
+
+---
+
+### Pattern 10: Execution Logging
+
+**Rule:** Generate a JSONL execution log during plan execution and a Markdown summary at completion.
+
+**Why:** Autonomous execution requires accountability. The log provides:
+
+- Audit trail for troubleshooting
+- Rollback reference (pre-execution commit SHA)
+- Pattern analysis across executions
+- Evidence for post-mortem analysis
+
+**Log Format: JSONL**
+
+Each line is a self-contained JSON object with a timestamp:
+
+```jsonl
+{"event":"execution_start","ts":"2026-01-27T14:30:00Z","plan_path":"...","plan_title":"...","pre_exec_commit":"a1b2c3d"}
+{"event":"phase_start","ts":"...","phase":1,"name":"Setup","autonomous":true}
+{"event":"tool_call","ts":"...","tool":"Bash","command":"mkdir -p ...","exit_code":0,"duration_ms":45}
+{"event":"validation","ts":"...","step":"1.1","item":"Directory exists","result":"pass"}
+{"event":"execution_complete","ts":"...","status":"success","phases_completed":3,"errors":0,"duration_ms":600000}
+```
+
+**Event Types:**
+
+| Event | Key Fields | When Emitted |
+|-------|------------|--------------|
+| `execution_start` | plan_path, plan_title, pre_exec_commit | Before pre-flight |
+| `phase_start` | phase, name, autonomous | Before each phase |
+| `phase_complete` | phase, report | After each phase |
+| `step_start` | step, name | Before each step |
+| `step_complete` | step, report | After each step |
+| `tool_call` | tool, outcome, duration_ms | After each tool use |
+| `validation` | step, item, result | After each checkbox |
+| `error` | step, type, message, recovery_action | When error occurs |
+| `user_approval` | step, action, response | When approval requested |
+| `state_change` | type, details | File/git operations |
+| `execution_complete` | status, phases_completed, errors, duration_ms | At end |
+
+**Truncation Policy:**
+
+For large outputs (stdout, stderr, file content):
+
+- Keep first 500 characters
+- Keep last 500 characters
+- Mark truncation: `"...[truncated: 15000 chars]..."`
+
+**Why JSONL Over Markdown:**
+
+| Criterion | JSONL | Markdown |
+|-----------|-------|----------|
+| Claude can parse | Native JSON | Regex/heuristics |
+| Filter by event type | Trivial | Difficult |
+| Aggregate across runs | Easy | Manual |
+
+**Execution Summary (Markdown):**
+
+Auto-generated at completion for human review. Includes:
+
+- Execution metadata (duration, status, phases)
+- Pre-execution state (rollback commit SHA)
+- Timeline of major events
+- Errors encountered and recovery actions
+- Files modified
+- Link to full JSONL log
+
+**Template location:** `assets/templates/execution-summary-template.md`
+
+---
+
 ## LLM-Specific Formatting
 
 ### Status Prefixes (for LLM parsing)

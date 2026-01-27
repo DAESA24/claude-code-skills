@@ -15,6 +15,7 @@ tags:
 - **Purpose:** <1-sentence goal>
 - **Audience:** Claude Code (autonomous execution agent)
 - **User Intervention:** Only for steps marked with approval indicator
+- **Plan Location:** `docs/YYYY-MM-DD-<project-slug>/YYYY-MM-DD-<project-slug>-execution-plan.md`
 
 ---
 
@@ -172,6 +173,23 @@ if [ -d "$SKILLS_DIR/.git" ] || [ -f "$SKILLS_DIR/.git" ]; then
 fi
 echo ""
 
+# Initialize execution log (Pattern 10)
+echo "--- Initialize Execution Log ---"
+LOG_DIR="docs/YYYY-MM-DD-<project-slug>"
+LOG_FILE="$LOG_DIR/YYYY-MM-DD-<project-slug>-execution-log.jsonl"
+
+# Create log directory if needed
+mkdir -p "$LOG_DIR"
+
+# Write execution_start event
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+cat >> "$LOG_FILE" <<EOF
+{"event":"execution_start","ts":"$TIMESTAMP","plan_path":"$LOG_DIR/YYYY-MM-DD-<project-slug>-execution-plan.md","plan_title":"<Operation Name>","pre_exec_commit":"$PRE_EXEC_COMMIT","pre_exec_skill_commit":"${PRE_EXEC_SKILL_COMMIT:-null}"}
+EOF
+
+echo "✅ Execution log initialized at $LOG_FILE"
+echo ""
+
 # Define paths
 # <define all paths used in the plan>
 
@@ -215,6 +233,20 @@ echo ""
 echo ""
 echo "SUCCESS: Phase 1 Complete - <summary>"
 echo "========================================"
+```
+
+**Log Events to Emit:**
+
+```bash
+# Emit at phase start
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "{\"event\":\"phase_start\",\"ts\":\"$TIMESTAMP\",\"phase\":N,\"name\":\"<Phase Name>\",\"autonomous\":true}" >> "$LOG_FILE"
+
+# Emit after each tool call (example for bash)
+echo "{\"event\":\"tool_call\",\"ts\":\"$TIMESTAMP\",\"tool\":\"Bash\",\"command\":\"<cmd>\",\"exit_code\":$?,\"duration_ms\":<ms>}" >> "$LOG_FILE"
+
+# Emit at phase completion
+echo "{\"event\":\"phase_complete\",\"ts\":\"$TIMESTAMP\",\"phase\":N,\"report\":\"PHASE N COMPLETE: <summary>\"}" >> "$LOG_FILE"
 ```
 
 **Expected Results:** (optional)
@@ -347,6 +379,8 @@ echo "✅ Rollback complete"
 - [ ] All success criteria verified
 - [ ] No rollback required
 - [ ] Documentation updated (if applicable)
+- [ ] Execution log finalized (execution_complete event written)
+- [ ] Execution summary generated from log
 
 ---
 

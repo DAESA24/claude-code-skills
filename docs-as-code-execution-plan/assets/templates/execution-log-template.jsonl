@@ -1,0 +1,22 @@
+{"event":"execution_start","ts":"YYYY-MM-DDTHH:MM:SSZ","plan_path":"docs/YYYY-MM-DD-project-slug/YYYY-MM-DD-project-slug-execution-plan.md","plan_title":"<Plan Title>","pre_exec_commit":"<commit-sha>","pre_exec_skill_commit":"<skill-commit-sha or null>"}
+{"event":"phase_start","ts":"YYYY-MM-DDTHH:MM:SSZ","phase":0,"name":"Pre-Flight Validation","autonomous":true}
+{"event":"tool_call","ts":"YYYY-MM-DDTHH:MM:SSZ","tool":"Bash","command":"git rev-parse --git-dir","exit_code":0,"stdout_excerpt":".git","duration_ms":45}
+{"event":"validation","ts":"YYYY-MM-DDTHH:MM:SSZ","step":"0.1","item":"Git repository detected","result":"pass"}
+{"event":"phase_complete","ts":"YYYY-MM-DDTHH:MM:SSZ","phase":0,"report":"PRE-FLIGHT COMPLETE: All checks passed"}
+{"event":"phase_start","ts":"YYYY-MM-DDTHH:MM:SSZ","phase":1,"name":"<Phase 1 Name>","autonomous":true}
+{"event":"step_start","ts":"YYYY-MM-DDTHH:MM:SSZ","step":"1.1","name":"<Step Name>"}
+{"event":"tool_call","ts":"YYYY-MM-DDTHH:MM:SSZ","tool":"Edit","file":"/path/to/file.md","lines_changed":5,"outcome":"success","duration_ms":120}
+{"event":"tool_call","ts":"YYYY-MM-DDTHH:MM:SSZ","tool":"Write","file":"/path/to/new-file.md","bytes_written":1024,"outcome":"success","duration_ms":80}
+{"event":"tool_call","ts":"YYYY-MM-DDTHH:MM:SSZ","tool":"Read","file":"/path/to/file.md","lines_read":50,"duration_ms":30}
+{"event":"validation","ts":"YYYY-MM-DDTHH:MM:SSZ","step":"1.1","item":"File updated correctly","result":"pass"}
+{"event":"step_complete","ts":"YYYY-MM-DDTHH:MM:SSZ","step":"1.1","report":"STEP 1.1 COMPLETE: <summary>"}
+{"event":"error","ts":"YYYY-MM-DDTHH:MM:SSZ","step":"1.2","type":"command_failed","command":"npm install","exit_code":1,"stderr_excerpt":"ENOENT: package.json not found...[truncated: 2500 chars]...","recovery_action":"Created package.json and retried"}
+{"event":"state_change","ts":"YYYY-MM-DDTHH:MM:SSZ","type":"file_created","path":"/path/to/package.json"}
+{"event":"phase_complete","ts":"YYYY-MM-DDTHH:MM:SSZ","phase":1,"report":"PHASE 1 COMPLETE: <summary>"}
+{"event":"phase_start","ts":"YYYY-MM-DDTHH:MM:SSZ","phase":2,"name":"<Phase 2 Name>","autonomous":false}
+{"event":"user_approval","ts":"YYYY-MM-DDTHH:MM:SSZ","step":"2.1","action":"Delete original files (350 files)","response":"approved"}
+{"event":"tool_call","ts":"YYYY-MM-DDTHH:MM:SSZ","tool":"Bash","command":"rm -rf /path/to/original","exit_code":0,"stdout_excerpt":"","duration_ms":500}
+{"event":"state_change","ts":"YYYY-MM-DDTHH:MM:SSZ","type":"directory_deleted","path":"/path/to/original","files_affected":350}
+{"event":"state_change","ts":"YYYY-MM-DDTHH:MM:SSZ","type":"git_commit","sha":"abc123","message":"feat: implement feature X"}
+{"event":"phase_complete","ts":"YYYY-MM-DDTHH:MM:SSZ","phase":2,"report":"PHASE 2 COMPLETE: <summary>"}
+{"event":"execution_complete","ts":"YYYY-MM-DDTHH:MM:SSZ","status":"success","phases_completed":2,"total_phases":2,"errors_encountered":1,"errors_recovered":1,"duration_ms":300000}

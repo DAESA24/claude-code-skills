@@ -50,7 +50,9 @@ To create a new execution plan:
    - Include rollback procedure
 
 3. **Save Plan**
-   - Save to project's `docs/` folder
+   - Generate project slug from task description (2-4 kebab-case words)
+   - Create project subdirectory: `docs/YYYY-MM-DD-<project-slug>/`
+   - Save plan to: `docs/YYYY-MM-DD-<project-slug>/YYYY-MM-DD-<project-slug>-execution-plan.md`
    - Follow the file naming convention (see below)
 
 4. **Post-Draft Parallelization Review**
@@ -68,10 +70,20 @@ To create a new execution plan:
 
 ## File Naming Convention
 
-All execution plans follow this naming pattern:
+All execution plans use project subdirectories with consistent naming:
+
+### Directory Pattern
 
 ```
-YYYY-MM-DD-<topic-words>-execution-plan[-vN].md
+docs/YYYY-MM-DD-<project-slug>/
+```
+
+### File Patterns
+
+```
+YYYY-MM-DD-<project-slug>-execution-plan.md
+YYYY-MM-DD-<project-slug>-execution-log.jsonl
+YYYY-MM-DD-<project-slug>-execution-summary.md
 ```
 
 ### Rules
@@ -80,8 +92,8 @@ YYYY-MM-DD-<topic-words>-execution-plan[-vN].md
 |---------|------|
 | **Case** | kebab-case (lowercase, hyphens) |
 | **Date prefix** | `YYYY-MM-DD` (today's date) |
-| **Topic words** | 3-4 words max describing the goal |
-| **Suffix** | Always ends with `-execution-plan` |
+| **Project slug** | 2-4 words describing the goal |
+| **Suffix** | `-execution-plan`, `-execution-log`, `-execution-summary` |
 | **Versioning** | `-v2`, `-v3`, etc. only if previous version exists |
 
 ### Examples
@@ -149,14 +161,23 @@ To execute an existing execution plan:
    - If no annotations: continue with sequential execution
 4. **Follow Execution Instructions** - Execute sequentially, no batching, stop on failure
 5. **Run Pre-Flight Validation** - Stop if any check fails
-6. **Execute phases in order**
+6. **Initialize Execution Log**
+   - Create log file in same directory as plan: `<project-dir>/<date>-<slug>-execution-log.jsonl`
+   - Write `execution_start` event with plan path, title, and pre-execution commit SHA
+   - Log file captures: tool calls, outcomes, durations, errors, validations
+7. **Execute phases in order**
    - Mark autonomous phases (`**Autonomous:** YES`) - execute without confirmation
    - Pause at approval points (warning indicator) - wait for user confirmation
    - Edit plan file to mark Validation Checklist checkboxes as items are verified
-7. **Report after each step** using the Report marker format
-8. **Verify Validation Checklist** after each step
-9. **Update plan status** in YAML front matter as phases complete
-10. **Handle failures** - Run rollback if needed, document in Dev Agent Record
+   - Emit log events during execution (phase_start, tool_call, validation, phase_complete)
+8. **Report after each step** using the Report marker format
+9. **Verify Validation Checklist** after each step
+10. **Update plan status** in YAML front matter as phases complete
+11. **Handle failures** - Run rollback if needed, document in Dev Agent Record
+12. **Generate Execution Summary**
+    - At completion, generate Markdown summary from log
+    - Save to: `<project-dir>/<date>-<slug>-execution-summary.md`
+    - Summary includes: timeline, errors, files modified, git operations
 
 ### Mode 3: Archive Completed Plan
 
@@ -183,6 +204,53 @@ Use these prefixes in bash script output for LLM parsing:
 - Info indicator - Information
 - Skip indicator - Skipped (step not needed)
 - Approval indicator - User approval required
+
+## Execution Logging
+
+During plan execution, a JSONL log captures every significant event.
+
+### Log File Location
+
+```
+docs/YYYY-MM-DD-<project-slug>/YYYY-MM-DD-<project-slug>-execution-log.jsonl
+```
+
+### Event Types Captured
+
+| Event | When |
+|-------|------|
+| `execution_start` | Before pre-flight, records rollback commit |
+| `phase_start/complete` | Phase boundaries |
+| `step_start/complete` | Step boundaries |
+| `tool_call` | After each tool use (with duration) |
+| `validation` | After each checkbox verification |
+| `error` | When errors occur (with recovery action) |
+| `user_approval` | When approval is requested |
+| `state_change` | File/git operations |
+| `execution_complete` | At end (with totals) |
+
+### Truncation
+
+Large outputs (>1000 chars) are truncated:
+- First 500 characters
+- Last 500 characters
+- Marker: `"...[truncated: N chars]..."`
+
+### Execution Summary
+
+At completion, a Markdown summary is generated for human review:
+- `<project-dir>/<date>-<slug>-execution-summary.md`
+- Contains: timeline, errors, files modified, rollback reference
+
+### Analyzing Logs
+
+Claude can parse JSONL logs to:
+- Identify patterns across executions
+- Calculate average phase durations
+- Find common error types
+- Suggest skill improvements
+
+Template files: `assets/templates/execution-log-template.jsonl`, `assets/templates/execution-summary-template.md`
 
 ## Windows-Specific Patterns
 
@@ -220,6 +288,9 @@ Before executing any plan, verify:
 - [ ] Agent Execution Notes section present
 - [ ] Rollback procedure included
 - [ ] Dev Agent Record section present (empty, to be filled)
+- [ ] Plan saved in project subdirectory (docs/YYYY-MM-DD-<slug>/)
+- [ ] (If executing) Execution log initialized
+- [ ] (If executing) Execution summary generated at completion
 - [ ] (If parallel) Parallelizable steps have `**Dependencies:**` annotation
 - [ ] (If parallel) Parallelizable steps have `**Output Artifacts:**` section
 - [ ] (If parallel) Parallelizable steps have `**Orchestrator Verification:**` commands
