@@ -156,6 +156,24 @@ After initialization, customize or remove the generated SKILL.md and example fil
 
 When editing the (newly-generated or existing) skill, remember that the skill is being created for another instance of Claude to use. Focus on including information that would be beneficial and non-obvious to Claude. Consider what procedural knowledge, domain-specific details, or reusable assets would help another Claude instance execute these tasks more effectively.
 
+#### Fetch Current Best Practices
+
+Before editing, fetch the latest skill authoring best practices from Anthropic's documentation.
+
+**Required:** Use WebFetch to retrieve current guidance from:
+`https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices`
+
+Extract and apply the following from the fetched content:
+
+- **Naming conventions** - Verify skill name follows current guidance
+- **Description requirements** - WHAT + WHEN format, third-person voice, trigger terms
+- **Conciseness principles** - Only add context Claude doesn't already have
+- **SKILL.md structure** - Progressive disclosure, line limits (~500 lines max)
+- **Script best practices** - Error handling approach, path conventions (if applicable)
+
+**Fallback:** If WebFetch fails, use the Crawl4AI PBC script:
+`~/pbcs/pbc-web-crawling/tool-crawl4ai/scripts/url_to_markdown.py <url>`
+
 #### Start with Reusable Skill Contents
 
 To begin implementation, start with the reusable resources identified above: `scripts/`, `references/`, and `assets/` files. Note that this step may require user input. For example, when implementing a `brand-guidelines` skill, the user may need to provide brand assets or templates to store in `assets/`, or documentation to store in `references/`.
