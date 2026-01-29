@@ -30,7 +30,11 @@ See [log-format-reference.md](references/log-format-reference.md) for the comple
 
 ## User Setup
 
-One-time configuration in `~/.claude/settings.json`. Add or merge this hooks configuration:
+One-time configuration in `~/.claude/settings.json`. Add or merge this hooks configuration.
+
+### Windows (PowerShell)
+
+On Windows, use PowerShell scripts (bash script files don't execute properly via Git Bash in Claude Code):
 
 ```json
 {
@@ -41,7 +45,7 @@ One-time configuration in `~/.claude/settings.json`. Add or merge this hooks con
         "hooks": [
           {
             "type": "command",
-            "command": "/c/Users/drewa/.claude/skills/execution-logging/scripts/log-tool-event.sh"
+            "command": "powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\drewa\\.claude\\skills\\execution-logging\\scripts\\log-tool-event.ps1\""
           }
         ]
       }
@@ -51,7 +55,7 @@ One-time configuration in `~/.claude/settings.json`. Add or merge this hooks con
         "hooks": [
           {
             "type": "command",
-            "command": "/c/Users/drewa/.claude/skills/execution-logging/scripts/finalize-log.sh"
+            "command": "powershell.exe -ExecutionPolicy Bypass -File \"C:\\Users\\drewa\\.claude\\skills\\execution-logging\\scripts\\finalize-log.ps1\""
           }
         ]
       }
@@ -60,7 +64,39 @@ One-time configuration in `~/.claude/settings.json`. Add or merge this hooks con
 }
 ```
 
-**Path format:** Always use forward slashes. On Windows: `/c/Users/username/...`. On macOS/Linux: `/Users/username/...`.
+### macOS / Linux (Bash)
+
+On macOS/Linux, use the bash scripts directly:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Edit|Write|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/drewa/.claude/skills/execution-logging/scripts/log-tool-event.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/drewa/.claude/skills/execution-logging/scripts/finalize-log.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Note:** Replace `drewa` with your actual username in all paths.
 
 ## Troubleshooting
 
@@ -73,9 +109,22 @@ One-time configuration in `~/.claude/settings.json`. Add or merge this hooks con
 - Marker file may have been deleted or corrupted
 - Check if the log directory still exists
 
+**Hooks not executing on Windows:**
+
+- Claude Code captures hook configuration at session startup - changes require a new session
+- Use PowerShell scripts on Windows (bash script files don't execute via Git Bash in Claude Code)
+- Verify the hook command in settings.json uses the PowerShell format shown above
+
 **Path issues on Windows:**
-- Use Git Bash path format: `/c/Users/...` not `C:\Users\...`
-- Ensure jq is installed and available in PATH
+
+- Marker file should use Git Bash paths: `/c/Users/...`
+- PowerShell scripts handle path conversion automatically
+- Ensure the log directory exists before creating the marker file
+
+**Dependencies:**
+
+- Windows: PowerShell (included with Windows)
+- macOS/Linux: jq (for JSON parsing in bash scripts)
 
 ## How It Works
 

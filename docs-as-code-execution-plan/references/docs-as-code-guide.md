@@ -911,6 +911,26 @@ docs/
 - Pattern analysis across executions
 - Evidence for post-mortem analysis
 
+**Dual Logging Approach:**
+
+Execution logging uses two complementary mechanisms:
+
+1. **Hook-based logging** (via `execution-logging` skill) - Automatically captures all Bash, Edit, Write, Read tool calls with full input/output
+2. **Semantic logging** (via plan execution) - Captures phase/step boundaries, validations, errors, approvals
+
+**Activating Hook-Based Logging:**
+
+During pre-flight, create the marker file to activate hooks:
+
+```bash
+# Create marker file with log path (Git Bash format)
+LOG_PATH_GITBASH=$(echo "$PWD/$LOG_FILE" | sed 's|^/\([a-zA-Z]\)/|/\L\1/|')
+echo "$LOG_PATH_GITBASH" > ~/.claude/.claude-execution-log-path
+echo "✅ Hook-based logging activated"
+```
+
+The `execution-logging` hooks will automatically log all tool calls. The Stop hook writes `execution_complete` and deletes the marker when the session ends.
+
 **Log Format: JSONL**
 
 Each line is a self-contained JSON object with a timestamp:
@@ -925,19 +945,19 @@ Each line is a self-contained JSON object with a timestamp:
 
 **Event Types:**
 
-| Event | Key Fields | When Emitted |
-|-------|------------|--------------|
-| `execution_start` | plan_path, plan_title, pre_exec_commit | Before pre-flight |
-| `phase_start` | phase, name, autonomous | Before each phase |
-| `phase_complete` | phase, report | After each phase |
-| `step_start` | step, name | Before each step |
-| `step_complete` | step, report | After each step |
-| `tool_call` | tool, outcome, duration_ms | After each tool use |
-| `validation` | step, item, result | After each checkbox |
-| `error` | step, type, message, recovery_action | When error occurs |
-| `user_approval` | step, action, response | When approval requested |
-| `state_change` | type, details | File/git operations |
-| `execution_complete` | status, phases_completed, errors, duration_ms | At end |
+| Event | Source | Key Fields | When Emitted |
+| ----- | ------ | ---------- | ------------ |
+| `execution_start` | Semantic | plan_path, plan_title, pre_exec_commit | Before pre-flight |
+| `phase_start` | Semantic | phase, name, autonomous | Before each phase |
+| `phase_complete` | Semantic | phase, report | After each phase |
+| `step_start` | Semantic | step, name | Before each step |
+| `step_complete` | Semantic | step, report | After each step |
+| `tool_call` | Hook | tool, input, response | After each Bash/Edit/Write/Read (automatic) |
+| `validation` | Semantic | step, item, result | After each checkbox |
+| `error` | Semantic | step, type, message, recovery_action | When error occurs |
+| `user_approval` | Semantic | step, action, response | When approval requested |
+| `state_change` | Semantic | type, details | File/git operations |
+| `execution_complete` | Hook | status, total_events | At session end (automatic) |
 
 **Truncation Policy:**
 

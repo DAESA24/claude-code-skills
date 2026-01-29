@@ -181,7 +181,13 @@ LOG_FILE="$LOG_DIR/YYYY-MM-DD-<project-slug>-execution-log.jsonl"
 # Create log directory if needed
 mkdir -p "$LOG_DIR"
 
-# Write execution_start event
+# Activate hook-based logging (execution-logging skill)
+# Convert to Git Bash path format for marker file
+LOG_PATH_GITBASH=$(echo "$PWD/$LOG_FILE" | sed 's|^/\([a-zA-Z]\)/|/\L\1/|')
+echo "$LOG_PATH_GITBASH" > ~/.claude/.claude-execution-log-path
+echo "✅ Hook-based logging activated"
+
+# Write execution_start event (semantic logging)
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 cat >> "$LOG_FILE" <<EOF
 {"event":"execution_start","ts":"$TIMESTAMP","plan_path":"$LOG_DIR/YYYY-MM-DD-<project-slug>-execution-plan.md","plan_title":"<Operation Name>","pre_exec_commit":"$PRE_EXEC_COMMIT","pre_exec_skill_commit":"${PRE_EXEC_SKILL_COMMIT:-null}"}

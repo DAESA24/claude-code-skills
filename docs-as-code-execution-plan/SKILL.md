@@ -163,8 +163,9 @@ To execute an existing execution plan:
 5. **Run Pre-Flight Validation** - Stop if any check fails
 6. **Initialize Execution Log**
    - Create log file in same directory as plan: `<project-dir>/<date>-<slug>-execution-log.jsonl`
+   - **Activate hook-based logging:** Create marker file `~/.claude/.claude-execution-log-path` containing the log file path (use Git Bash path format: `/c/Users/...`)
    - Write `execution_start` event with plan path, title, and pre-execution commit SHA
-   - Log file captures: tool calls, outcomes, durations, errors, validations
+   - Log file captures: tool calls (via hooks), semantic events (phase/step boundaries), validations, errors
 7. **Execute phases in order**
    - Mark autonomous phases (`**Autonomous:** YES`) - execute without confirmation
    - Pause at approval points (warning indicator) - wait for user confirmation
@@ -207,7 +208,27 @@ Use these prefixes in bash script output for LLM parsing:
 
 ## Execution Logging
 
-During plan execution, a JSONL log captures every significant event.
+During plan execution, a JSONL log captures every significant event. Logging uses a **dual approach**:
+
+1. **Hook-based logging** (via `execution-logging` skill) - Automatically captures all Bash, Edit, Write, Read tool calls
+2. **Semantic logging** (via this skill) - Captures phase/step boundaries, validations, errors, approvals
+
+### Activating Hook-Based Logging
+
+During step 6 (Initialize Execution Log), create the marker file:
+
+```bash
+# Determine log path (Git Bash format)
+LOG_PATH="/c/Users/drewa/work/project/docs/YYYY-MM-DD-slug/YYYY-MM-DD-slug-execution-log.jsonl"
+
+# Create marker file to activate hooks
+echo "$LOG_PATH" > ~/.claude/.claude-execution-log-path
+
+# Ensure log directory exists
+mkdir -p "$(dirname "$LOG_PATH")"
+```
+
+The `execution-logging` hooks will now automatically log all tool calls to this file. The Stop hook will write `execution_complete` and delete the marker when the session ends.
 
 ### Log File Location
 
@@ -217,17 +238,17 @@ docs/YYYY-MM-DD-<project-slug>/YYYY-MM-DD-<project-slug>-execution-log.jsonl
 
 ### Event Types Captured
 
-| Event | When |
-|-------|------|
-| `execution_start` | Before pre-flight, records rollback commit |
-| `phase_start/complete` | Phase boundaries |
-| `step_start/complete` | Step boundaries |
-| `tool_call` | After each tool use (with duration) |
-| `validation` | After each checkbox verification |
-| `error` | When errors occur (with recovery action) |
-| `user_approval` | When approval is requested |
-| `state_change` | File/git operations |
-| `execution_complete` | At end (with totals) |
+| Event | Source | When |
+| ----- | ------ | ---- |
+| `execution_start` | Semantic | Before pre-flight, records rollback commit |
+| `phase_start/complete` | Semantic | Phase boundaries |
+| `step_start/complete` | Semantic | Step boundaries |
+| `tool_call` | Hook | After each Bash/Edit/Write/Read (automatic) |
+| `validation` | Semantic | After each checkbox verification |
+| `error` | Semantic | When errors occur (with recovery action) |
+| `user_approval` | Semantic | When approval is requested |
+| `state_change` | Semantic | File/git operations |
+| `execution_complete` | Hook | At session end (automatic) |
 
 ### Truncation
 
@@ -290,6 +311,7 @@ Before executing any plan, verify:
 - [ ] Dev Agent Record section present (empty, to be filled)
 - [ ] Plan saved in project subdirectory (docs/YYYY-MM-DD-<slug>/)
 - [ ] (If executing) Execution log initialized
+- [ ] (If executing) Marker file created for hook-based logging (`~/.claude/.claude-execution-log-path`)
 - [ ] (If executing) Execution summary generated at completion
 - [ ] (If parallel) Parallelizable steps have `**Dependencies:**` annotation
 - [ ] (If parallel) Parallelizable steps have `**Output Artifacts:**` section
